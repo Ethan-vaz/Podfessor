@@ -1,0 +1,40 @@
+p {
+    color: white;
+}
+
+body {
+    background-color: #000000;
+    color: white;
+}
+
+a {
+    color: white;
+}
+
+a:visited {
+    color: grey;
+}
+
+h1 {
+    font-family: 'Press Start 2P'
+}
+
+.card {
+    border: 1px solid greenyellow;
+    padding: 10px;
+    color: white;
+    width: 25%;
+    border-radius: 10px;
+}
+
+div {
+    border: 1px greenyellow solid;
+    border-radius: 10px;
+}
+
+img {
+    border-radius: 10px;
+    /* width: 80%; */
+    /* padding: 10px; */
+    vertical-align: center;
+}
