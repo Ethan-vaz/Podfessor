@@ -11,16 +11,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <script src="/js/courses.js"></script>
+    <script src="/js/courseNotes.js"></script>
+    <script src="/js/app.js"></script>
+
 </head>
 
 <body style="background-color: #202020; color: greenyellow; font-family: 'Courier New', Courier, monospace">
-    <script> 
-        let card = document.querySelector(".card")
-        card.addEventListener('mouseover', (e) =>{
-            card.style="background-color: grey"
-            console.log(card)
-        })
-    </script>
+
     <nav style="padding: 10px;">
         <a href="/">Home</a> >
         <a href="/about">About Us</a> >
@@ -28,28 +27,82 @@
     </nav>
     <h1 style="font-family: Press Start 2P;">PodFessor App</h1>
     <h2>AI-powered Text-to-Speech Course Summaries </h2>
-    <div>
+    <div class="card">
         <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/1IHqQ0mqdfKUDigOF2Xegj?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
     </div>
-    <div class="card">
-        <img width="100%" src="https://images.unsplash.com/photo-1493119508027-2b584f234d6c?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+    <button id="generateButton">GENERATE COURSE CARDS</button>
+    <!-- <div class="card">
+        <img src="https://images.unsplash.com/photo-1493119508027-2b584f234d6c?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
         <h4>Web Programming Principles</h4>
         <button>BTI225</button>
         <p>"HTML", "CSS", "JavaScript", "Forms", "DOM"</p>
     </div>
     <div class="card">
-        <img width="100%" src="https://images.unsplash.com/photo-1523800503107-5bc3ba2a6f81?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+        <img src="https://images.unsplash.com/photo-1523800503107-5bc3ba2a6f81?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
         <h4>Web Programming Tools and Frameworks</h4>
         <button>BTI325</button>
         <p>"Node.js", "Express", "REST APIs"</p>
     </div>
     <div class="card">
-        <img width="100%" src="https://plus.unsplash.com/premium_photo-1668902223880-3c9a62ad2a29?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+        <img src="https://plus.unsplash.com/premium_photo-1668902223880-3c9a62ad2a29?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
         <h4>Calculus</h4>
         <button>MTH330</button>
         <p>"Limits", "Derivatives", "Integrals"</p>
-    </div>
+    </div> -->
+    <script>
+        // let cards = document.querySelectorAll("div.card")
+        // console.log(cards)
+        // cards.forEach(card => {
+        //     card.addEventListener('mouseover', (e) => {
+        //         card.style.backgroundColor = "grey"
+        //     })
+        //     card.addEventListener('mouseout', (e) => {
+        //         card.style.backgroundColor = "#202020"
+        //     })
+        //     card.addEventListener('click', (e) => {
+        //         window.open("courses/new.html", "_self")
+        //     })
+        // });
+        // card.addEventListener('mouseover', (e) => {
+        //     card.style.backgroundColor = "grey"
+        //     // console.log(card)
+        // })
+
+        // // div
+        // let newCard = document.createElement("div")
+
+        // // img
+        // let newCardImg = document.createElement("img")
+        // newCardImg.src = "https://images.unsplash.com/photo-1577375870519-0a9fdb747f51?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        
+        // // h4 title
+        // let newCardTitle = document.createElement("h4")
+        // newCardTitle.textContent = "System Design and Architecture"
+
+        // // button
+        // let newCardButton = document.createElement("button")
+        // newCardButton.textContent = "SYS310"    
+
+        // // text / paragraph
+        // let newCardP = document.createElement("p")
+        // newCardP.textContent = '"System Design", "Microservices", "Scalability"'
+
+        // // append children to card
+        // newCard.appendChild(newCardImg)
+        // newCard.appendChild(newCardTitle)
+        // newCard.appendChild(newCardButton)
+        // newCard.appendChild(newCardP)
+
+        // // styling the card
+        // newCard.className = "card"
+
+        // // appending to body
+        // let body = document.querySelector("body")
+        // body.appendChild(newCard)
+
+
+    </script>
 </body>
 
 </html>

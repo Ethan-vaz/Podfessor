@@ -10,7 +10,7 @@
 
 
 
-module.exports.courseNotes = [{
+window.courseNotes = [{
     code: "BTI225",
     notes: "Web Programming Principles - Covers HTML, CSS, JavaScript, Forms, and DOM manipulation.",
 },

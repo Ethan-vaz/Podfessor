@@ -22,19 +22,41 @@ h1 {
 .card {
     border: 1px solid greenyellow;
     padding: 10px;
+    margin: 20px;
     color: white;
     width: 25%;
     border-radius: 10px;
+
 }
 
-div {
+/* .card:hover {
+    background-color: grey;
+} */
+
+/* div {
     border: 1px greenyellow solid;
     border-radius: 10px;
-}
+} */
 
 img {
     border-radius: 10px;
     /* width: 80%; */
     /* padding: 10px; */
     vertical-align: center;
+    width: 100%;
+}
+
+#generateButton {
+    margin: 20px;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: greenyellow;
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#generateButton:hover {
+    background-color: yellow;
+    cursor: pointer;
 }
