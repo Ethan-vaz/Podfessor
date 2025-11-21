@@ -1,10 +1,41 @@
-let { courses, courseNotes } = window
+
+let { courses, courseNotes, semesters } = window
+
+let generateSemesterButtons = (semesters) => {
+
+    let semesterContainer = document.querySelector("#semesterContainer")
+    semesters.forEach((semester) => {
+        let semesterButton = document.createElement("button")
+        semesterButton.className = "button"
+        semesterButton.textContent = semester.name
+
+        semesterButton.addEventListener("click", () => {
+            // console.log(`You clicked on semester: ${semester.semesterID}`)  
+            // filter courses based on semesterID
+            let filteredCourses = courses.filter((course) => {
+                return course.semesterID === semester.semesterID
+            })
+            // console.log(filteredCourses)
+            generateCourseCards(filteredCourses)
+
+        })
+        semesterContainer.appendChild(semesterButton)
+    })
+}
+
+
 
 let generateCourseCards = (courses) => {
+    // clear previous cards
+    let cardsContainer = document.querySelector("#cardsContainer")
+    cardsContainer.innerHTML = ""
     courses.forEach((course) => {
         console.log(course.name)
         // div
         let newCard = document.createElement("div")
+        newCard.onclick = () => {
+            open(course.outlineURL, "_blank", "noopener,noreferrer")
+        }
 
         // img
         let newCardImg = document.createElement("img")
@@ -16,6 +47,10 @@ let generateCourseCards = (courses) => {
 
         // button
         let newCardButton = document.createElement("button")
+        // newCardButton.onclick = () => {
+        //     open(course.outlineURL, "_blank", "noopener,noreferrer")
+        // }
+        newCardButton.className = "button"
         newCardButton.textContent = course.code  
 
         // text / paragraph
@@ -32,8 +67,8 @@ let generateCourseCards = (courses) => {
         newCard.className = "card"
 
         // appending to body
-        let body = document.querySelector("body")
-        body.appendChild(newCard)
+        let cardsContainer = document.querySelector("#cardsContainer")
+        cardsContainer.appendChild(newCard)
     })
 }
 
@@ -41,12 +76,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
     console.log("DOM fully loaded and parsed");
     console.log("Courses:", courses)
     console.log("Course Notes:", courseNotes)
+    console.log("Semesters:", semesters)
 
-    let generateButton = document.querySelector("#generateButton")
-    generateButton.addEventListener("click", () => {
-        console.log("you clicked me!")
-        generateCourseCards(courses)
-    })
+    // let generateButton = document.querySelector("#generateButton")
+
+    generateSemesterButtons(semesters)
+    // generateButton.addEventListener("click", () => {
+    //     console.log("you clicked me!")
+    //     generateCourseCards(courses)
+    // })
 
     // 
 });

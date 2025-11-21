@@ -26,12 +26,14 @@ h1 {
     color: white;
     width: 25%;
     border-radius: 10px;
+    text-align: center;
 
 }
 
-/* .card:hover {
-    background-color: grey;
-} */
+.card:hover {
+    background-color: #2f2d2d;
+    cursor: pointer;
+}
 
 /* div {
     border: 1px greenyellow solid;
@@ -46,17 +48,91 @@ img {
     width: 100%;
 }
 
-#generateButton {
-    margin: 20px;
-    padding: 30px;
+.button {
+    margin: 10px;
+    padding: 10px;
     border-radius: 10px;
     background-color: greenyellow;
     color: black;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 10px;
+    /* background-image: url("https://plus.unsplash.com/premium_photo-1663045661039-32a3b7e93ad3?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170") */
+    background-image: radial-gradient(circle, greenyellow, yellow);
+
 }
 
-#generateButton:hover {
+.button:hover {
     background-color: yellow;
     cursor: pointer;
+}
+
+.navbar {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+input {
+    padding: 13px;
+    border-radius: 10px;
+    border: solid 1px grey;
+    width: 300px;
+    background-color: black;
+    color: white;
+}
+
+input:focus {
+    outline: none;
+    border: solid 2px greenyellow;
+    color: white;
+}
+
+.search-button {
+    /* round button */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    background-color: greenyellow;
+    border: none;
+    cursor: pointer;
+}
+
+.login-menu {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 300px;
+}
+
+.login-button {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: greenyellow;
+    border: none;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: yellow;
+}
+
+#cardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.section {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid greenyellow;
+    border-radius: 10px;
+    height: 80%;
+    background-color: #1c1a1a;
+}
+
+main {
+    display: flex;
+    /* flex-direction: column; */
 }

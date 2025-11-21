@@ -12,97 +12,100 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    <script src="/js/courses.js"></script>
-    <script src="/js/courseNotes.js"></script>
-    <script src="/js/app.js"></script>
+
+    <script src="https://kit.fontawesome.com/efeb3f9255.js" crossorigin="anonymous"></script>
 
 </head>
 
 <body style="background-color: #202020; color: greenyellow; font-family: 'Courier New', Courier, monospace">
 
-    <nav style="padding: 10px;">
-        <a href="/">Home</a> >
-        <a href="/about">About Us</a> >
-        <a href="/courses/new">Add New Course</a>
+    <nav class="navbar">
+        <!-- FROGGY 1: home button/logo -->
+        <a href="/">Home</a> 
+        <!-- FROGGY 2: search bar -->
+        <div> 
+            <input type="text" placeholder="Search courses..." />
+            <button class="search-button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <!-- FROGGY 3: login/menu -->
+        <div class="login-menu">
+            <a href="/about">About Us</a>
+            <a href="/signup">Sign Up</a>
+            <button class="login-button">LOGIN <i class="fa-solid fa-user"></i></button>
+        </div>
     </nav>
     <h1 style="font-family: Press Start 2P;">PodFessor App</h1>
     <h2>AI-powered Text-to-Speech Course Summaries </h2>
-    <div class="card">
+    <main>
+    <!-- OPEN AI CHAT SECTION -->
+    <div id="chat" class="section" style="width: 20%;">
+        <h5>Open API AI Chatbot coming soon!</h5>
+        <!-- <input type="text" placeholder="Ask me anything about your courses..." /> -->
+
+        <form id="chat-form" action="http://httpbin.org/post" method="post">
+            <input id="chatInput" style="width: 120px;" type="text" name="chatInput" placeholder="Ask me about your course!"/> 
+            <button type="submit" class="search-button"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+        <script>
+            let chatForm = document.querySelector("#chat-form")
+            chatForm.addEventListener("submit", () => {
+                event.preventDefault()
+                let chatInput = document.querySelector("#chatInput")
+                let prompt = chatInput.value
+
+                fetch('https://api.openai.com/v1/responses', {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer OPEN-AI-KEY-HERE',
+                    },
+                    body: JSON.stringify({ 
+                        // data
+                        "model": "gpt-5",
+                        "input": "generate a podcast script teaching" +prompt
+                        // for images:
+                        // "model": "dall-e-3",
+                        // "prompt": "generate an image of" +prompt
+                    })
+                }).then(response => response.json())
+                .then(data => {
+                    let chatDiv = document.querySelector("#chat")
+                    // for images:
+                    // let chatResponse = document.createElement("img")
+                    // chatResponse.src = data.data[0].url
+                    let chatResponse = document.createElement("p")
+                    chatResponse.textContent = data.output[1].content[0].text
+
+                    chatDiv.appendChild(chatResponse)
+                })
+                .catch(error => console.error('Error:', error));
+            })
+            
+
+
+        </script>
+
+    </div>
+
+    <!-- <div class="card">
         <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/1IHqQ0mqdfKUDigOF2Xegj?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-    </div>
-    <button id="generateButton">GENERATE COURSE CARDS</button>
-    <!-- <div class="card">
-        <img src="https://images.unsplash.com/photo-1493119508027-2b584f234d6c?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
-        <h4>Web Programming Principles</h4>
-        <button>BTI225</button>
-        <p>"HTML", "CSS", "JavaScript", "Forms", "DOM"</p>
-    </div>
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1523800503107-5bc3ba2a6f81?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
-        <h4>Web Programming Tools and Frameworks</h4>
-        <button>BTI325</button>
-        <p>"Node.js", "Express", "REST APIs"</p>
-    </div>
-    <div class="card">
-        <img src="https://plus.unsplash.com/premium_photo-1668902223880-3c9a62ad2a29?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
-        <h4>Calculus</h4>
-        <button>MTH330</button>
-        <p>"Limits", "Derivatives", "Integrals"</p>
     </div> -->
-    <script>
-        // let cards = document.querySelectorAll("div.card")
-        // console.log(cards)
-        // cards.forEach(card => {
-        //     card.addEventListener('mouseover', (e) => {
-        //         card.style.backgroundColor = "grey"
-        //     })
-        //     card.addEventListener('mouseout', (e) => {
-        //         card.style.backgroundColor = "#202020"
-        //     })
-        //     card.addEventListener('click', (e) => {
-        //         window.open("courses/new.html", "_self")
-        //     })
-        // });
-        // card.addEventListener('mouseover', (e) => {
-        //     card.style.backgroundColor = "grey"
-        //     // console.log(card)
-        // })
+    <!-- <button id="generateButton">GENERATE COURSE CARDS <i class="fa-solid fa-book-open"></i></button> -->
 
-        // // div
-        // let newCard = document.createElement("div")
+    <!-- CARDS SECTION -->
+    <div class="section" style="width: 80%;">
+    <div id="semesterContainer"></div>
+    <div id="cardsContainer"></div>
+    </div>
 
-        // // img
-        // let newCardImg = document.createElement("img")
-        // newCardImg.src = "https://images.unsplash.com/photo-1577375870519-0a9fdb747f51?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        
-        // // h4 title
-        // let newCardTitle = document.createElement("h4")
-        // newCardTitle.textContent = "System Design and Architecture"
+    </main>
 
-        // // button
-        // let newCardButton = document.createElement("button")
-        // newCardButton.textContent = "SYS310"    
-
-        // // text / paragraph
-        // let newCardP = document.createElement("p")
-        // newCardP.textContent = '"System Design", "Microservices", "Scalability"'
-
-        // // append children to card
-        // newCard.appendChild(newCardImg)
-        // newCard.appendChild(newCardTitle)
-        // newCard.appendChild(newCardButton)
-        // newCard.appendChild(newCardP)
-
-        // // styling the card
-        // newCard.className = "card"
-
-        // // appending to body
-        // let body = document.querySelector("body")
-        // body.appendChild(newCard)
-
-
-    </script>
 </body>
+
+<script src="/js/courses.js"></script>
+<script src="/js/courseNotes.js"></script>
+<script src="/js/semesters.js"></script>
+<script src="/js/app.js"></script>
 
 </html>
