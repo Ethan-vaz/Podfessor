@@ -1,15 +1,3 @@
-// let courseNotes = [
-//     {
-//         course: "CS101",
-//         notes: "Introduction to Computer Science - Basics of programming, algorithms, and data structures."
-
-//     },
-
-// ]
-
-
-
-
 window.courseNotes = [{
     code: "BTI225",
     notes: "Web Programming Principles - Covers HTML, CSS, JavaScript, Forms, and DOM manipulation.",
