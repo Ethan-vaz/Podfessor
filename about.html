@@ -3,10 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
+    <title>About Podfessor</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
-<body>
-    about 
-    <a href="/">go back home</a>
+<body style="background-color: #202020; color: greenyellow; font-family: 'Courier New', Courier, monospace">
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+    </nav>
+
+    <div class="section about">
+        <h1>About Podfessor</h1>
+        <p>
+            Podfessor turns course material into short, podcast-style lessons.
+            Pick a course, ask a question about it, and Podfessor writes a
+            friendly script that explains the topic the way a professor would
+            on a podcast.
+        </p>
+        <p>
+            The front end is plain HTML, CSS and JavaScript. Questions are sent
+            to a small PHP endpoint, which calls the OpenAI API on the server so
+            the API key is never exposed in the browser.
+        </p>
+        <p>
+            Coming next: saved courses and notes in a SQL database, user
+            accounts, and text-to-speech audio for each lesson.
+        </p>
+    </div>
 </body>
 </html>

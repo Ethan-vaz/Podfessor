@@ -21,15 +21,13 @@
         <!-- FROGGY 1: home button/logo -->
         <a href="/">Home</a> 
         <!-- FROGGY 2: search bar -->
-        <div> 
-            <input type="text" placeholder="Search courses..." />
-            <button class="search-button"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-        <!-- FROGGY 3: login/menu -->
+        <form id="search-form" role="search">
+            <input id="searchInput" type="search" placeholder="Search courses..." aria-label="Search courses" />
+            <button type="submit" class="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+        <!-- FROGGY 3: menu -->
         <div class="login-menu">
-            <a href="/about">About Us</a>
-            <a href="/signup">Sign Up</a>
-            <button class="login-button">LOGIN <i class="fa-solid fa-user"></i></button>
+            <a href="about.html">About</a>
         </div>
     </nav>
     <h1 style="font-family: Press Start 2P;">PodFessor App</h1>
@@ -37,51 +35,13 @@
     <main>
     <!-- OPEN AI CHAT SECTION -->
     <div id="chat" class="section" style="width: 20%;">
-        <h5>Open API AI Chatbot coming soon!</h5>
-        <!-- <input type="text" placeholder="Ask me anything about your courses..." /> -->
+        <h5>Ask Podfessor</h5>
 
-        <form id="chat-form" action="http://httpbin.org/post" method="post">
-            <input id="chatInput" style="width: 120px;" type="text" name="chatInput" placeholder="Ask me about your course!"/> 
-            <button type="submit" class="search-button"><i class="fa-solid fa-paper-plane"></i></button>
+        <form id="chat-form">
+            <input id="chatInput" style="width: 120px;" type="text" name="chatInput" maxlength="500" placeholder="Ask me about your course!" aria-label="Ask a question about your course"/>
+            <button type="submit" class="search-button" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
-        <script>
-            let chatForm = document.querySelector("#chat-form")
-            chatForm.addEventListener("submit", () => {
-                event.preventDefault()
-                let chatInput = document.querySelector("#chatInput")
-                let prompt = chatInput.value
-
-                fetch('https://api.openai.com/v1/responses', {
-                    method: 'POST', 
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer OPEN-AI-KEY-HERE',
-                    },
-                    body: JSON.stringify({ 
-                        // data
-                        "model": "gpt-5",
-                        "input": "generate a podcast script teaching" +prompt
-                        // for images:
-                        // "model": "dall-e-3",
-                        // "prompt": "generate an image of" +prompt
-                    })
-                }).then(response => response.json())
-                .then(data => {
-                    let chatDiv = document.querySelector("#chat")
-                    // for images:
-                    // let chatResponse = document.createElement("img")
-                    // chatResponse.src = data.data[0].url
-                    let chatResponse = document.createElement("p")
-                    chatResponse.textContent = data.output[1].content[0].text
-
-                    chatDiv.appendChild(chatResponse)
-                })
-                .catch(error => console.error('Error:', error));
-            })
-            
-
-
-        </script>
+        <div id="chatResponses" aria-live="polite"></div>
 
     </div>
 
@@ -105,5 +65,6 @@
 <script src="javascript/courseNotes.js"></script>
 <script src="javascript/semesters.js"></script>
 <script src="javascript/app.js"></script>
+<script src="javascript/chat.js"></script>
 
 </html>

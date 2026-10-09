@@ -4,6 +4,13 @@ let { courses, courseNotes, semesters } = window
 let generateSemesterButtons = (semesters) => {
 
     let semesterContainer = document.querySelector("#semesterContainer")
+
+    let allButton = document.createElement("button")
+    allButton.className = "button"
+    allButton.textContent = "All Courses"
+    allButton.addEventListener("click", () => generateCourseCards(courses))
+    semesterContainer.appendChild(allButton)
+
     semesters.forEach((semester) => {
         let semesterButton = document.createElement("button")
         semesterButton.className = "button"
@@ -29,17 +36,26 @@ let generateCourseCards = (courses) => {
     // clear previous cards
     let cardsContainer = document.querySelector("#cardsContainer")
     cardsContainer.innerHTML = ""
+    if (courses.length === 0) {
+        let emptyMessage = document.createElement("p")
+        emptyMessage.textContent = "No courses match your search."
+        cardsContainer.appendChild(emptyMessage)
+        return
+    }
     courses.forEach((course) => {
-        console.log(course.name)
         // div
         let newCard = document.createElement("div")
-        newCard.onclick = () => {
-            open(course.outlineURL, "_blank", "noopener,noreferrer")
+        if (course.outlineURL) {
+            newCard.onclick = () => {
+                open(course.outlineURL, "_blank", "noopener,noreferrer")
+            }
         }
 
         // img
         let newCardImg = document.createElement("img")
         newCardImg.src = course.image
+        newCardImg.alt = course.name
+        newCardImg.loading = "lazy"
         
         // h4 title
         let newCardTitle = document.createElement("h4")
@@ -72,21 +88,25 @@ let generateCourseCards = (courses) => {
     })
 }
 
-document.addEventListener("DOMContentLoaded", (event) => {
-    console.log("DOM fully loaded and parsed");
-    console.log("Courses:", courses)
-    console.log("Course Notes:", courseNotes)
-    console.log("Semesters:", semesters)
+// show courses whose name, code or topics contain the search text
+let searchCourses = (query) => {
+    let text = query.trim().toLowerCase()
+    return courses.filter((course) => {
+        let searchable = [course.name, course.code, ...course.topics].join(" ").toLowerCase()
+        return searchable.includes(text)
+    })
+}
 
-    // let generateButton = document.querySelector("#generateButton")
-
+document.addEventListener("DOMContentLoaded", () => {
     generateSemesterButtons(semesters)
-    // generateButton.addEventListener("click", () => {
-    //     console.log("you clicked me!")
-    //     generateCourseCards(courses)
-    // })
+    generateCourseCards(courses)
 
-    // 
+    let searchForm = document.querySelector("#search-form")
+    let searchInput = document.querySelector("#searchInput")
+    searchForm.addEventListener("submit", (event) => event.preventDefault())
+    searchInput.addEventListener("input", () => {
+        generateCourseCards(searchCourses(searchInput.value))
+    })
 });
 
 // consider elevenLabs API for text to speech

@@ -136,3 +136,28 @@ main {
     display: flex;
     /* flex-direction: column; */
 }
+.chat-reply {
+    white-space: pre-wrap;
+    border-top: 1px solid #333;
+    padding-top: 10px;
+}
+
+.chat-loading {
+    color: grey;
+    font-style: italic;
+}
+
+.chat-error {
+    color: #ff6b6b;
+}
+
+.search-button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.about {
+    max-width: 700px;
+    margin: 20px auto;
+    line-height: 1.6;
+}
