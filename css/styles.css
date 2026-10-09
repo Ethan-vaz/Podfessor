@@ -100,9 +100,10 @@ input:focus {
 
 .login-menu {
     display: flex;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     align-items: center;
-    width: 300px;
+    gap: 15px;
 }
 
 .login-button {
@@ -160,4 +161,117 @@ main {
     max-width: 700px;
     margin: 20px auto;
     line-height: 1.6;
+}
+
+.button[aria-pressed="true"] {
+    outline: 2px solid white;
+}
+
+.course-code {
+    display: inline-block;
+    cursor: default;
+}
+
+.course-semester {
+    color: grey;
+    font-size: 12px;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.form-page {
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.stacked-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stacked-form label {
+    margin-top: 10px;
+    color: white;
+}
+
+.stacked-form input,
+.stacked-form select,
+.stacked-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+select,
+textarea {
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 1px grey;
+    background-color: black;
+    color: white;
+    font: inherit;
+}
+
+#chatCourse {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+[aria-invalid="true"] {
+    border: solid 2px #ff6b6b;
+}
+
+.field-error {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin: 0;
+}
+
+.hint {
+    color: grey;
+    font-size: 12px;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+    .navbar,
+    main {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .navbar input {
+        width: 70%;
+    }
+
+    #chat,
+    main > .section {
+        width: auto !important;
+    }
+
+    .card {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 10px 0;
+    }
 }

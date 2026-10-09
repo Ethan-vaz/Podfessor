@@ -1,0 +1,5 @@
+# When hosted on Apache: hide files that must never be public, such as .env.
+RedirectMatch 404 (^|/)\.(?!well-known/)
+RedirectMatch 404 ^/(database|tests)(/|$)
+RedirectMatch 404 ^/api/_
+RedirectMatch 404 ^/router\.php$

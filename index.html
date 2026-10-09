@@ -19,14 +19,14 @@
 
     <nav class="navbar">
         <!-- FROGGY 1: home button/logo -->
-        <a href="/">Home</a> 
+        <a href="index.html">Home</a>
         <!-- FROGGY 2: search bar -->
         <form id="search-form" role="search">
             <input id="searchInput" type="search" placeholder="Search courses..." aria-label="Search courses" />
             <button type="submit" class="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
         <!-- FROGGY 3: menu -->
-        <div class="login-menu">
+        <div id="accountMenu" class="login-menu">
             <a href="about.html">About</a>
         </div>
     </nav>
@@ -38,6 +38,9 @@
         <h5>Ask Podfessor</h5>
 
         <form id="chat-form">
+            <select id="chatCourse" aria-label="Course to ask about">
+                <option value="">Any course</option>
+            </select>
             <input id="chatInput" style="width: 120px;" type="text" name="chatInput" maxlength="500" placeholder="Ask me about your course!" aria-label="Ask a question about your course"/>
             <button type="submit" class="search-button" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
@@ -61,9 +64,7 @@
 
 </body>
 
-<script src="javascript/courses.js"></script>
-<script src="javascript/courseNotes.js"></script>
-<script src="javascript/semesters.js"></script>
+<script src="javascript/common.js"></script>
 <script src="javascript/app.js"></script>
 <script src="javascript/chat.js"></script>
 

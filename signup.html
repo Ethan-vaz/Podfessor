@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up – Podfessor</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: #202020; color: greenyellow; font-family: 'Courier New', Courier, monospace">
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <div id="accountMenu" class="login-menu"></div>
+    </nav>
+
+    <div class="section form-page">
+        <h1>Sign Up</h1>
+        <form id="auth-form" class="stacked-form" data-mode="signup" novalidate>
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" maxlength="100" required>
+
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+
+            <label for="password">Password <span class="hint">(at least 8 characters)</span></label>
+            <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+
+            <p id="formError" class="chat-error" role="alert"></p>
+            <button type="submit" class="button">Create Account</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+    <script src="javascript/common.js"></script>
+    <script src="javascript/auth.js"></script>
+</body>
+</html>

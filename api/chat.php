@@ -1,27 +1,19 @@
 <?php
-// Proxies chat prompts to the OpenAI Responses API so the API key stays on the server.
+// POST { prompt, course_id? } -> a podcast script from the OpenAI Responses API.
+// The API key stays on the server. Login is required so the key can't be used by anyone on the internet.
 
-header('Content-Type: application/json');
+require __DIR__ . '/_bootstrap.php';
 
-function respond(int $status, array $body): void
-{
-    http_response_code($status);
-    echo json_encode($body);
-    exit;
-}
+require_method('POST');
+$userId = require_login();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Allow: POST');
-    respond(405, ['error' => 'Use POST.']);
-}
-
-$apiKey = getenv('OPENAI_API_KEY');
+$apiKey = config('OPENAI_API_KEY');
 if (!$apiKey) {
     respond(500, ['error' => 'The server is missing OPENAI_API_KEY.']);
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-$prompt = is_array($input) && is_string($input['prompt'] ?? null) ? trim($input['prompt']) : '';
+$data = read_json();
+$prompt = string_field($data, 'prompt');
 
 if ($prompt === '') {
     respond(400, ['error' => 'Please enter a question.']);
@@ -30,7 +22,28 @@ if (mb_strlen($prompt) > 500) {
     respond(400, ['error' => 'Please keep your question under 500 characters.']);
 }
 
-$ch = curl_init('https://api.openai.com/v1/responses');
+$instructions = 'You are Podfessor. Write a short, friendly podcast script that teaches the student about the topic they ask about.';
+
+// If a course was chosen, give the model its topics and the student's notes as background.
+$courseId = filter_var($data['course_id'] ?? null, FILTER_VALIDATE_INT);
+if ($courseId) {
+    $query = db()->prepare(
+        'SELECT c.code, c.name, c.notes, GROUP_CONCAT(t.name ORDER BY t.position SEPARATOR \', \') AS topics
+         FROM courses c LEFT JOIN course_topics t ON t.course_id = c.id
+         WHERE c.id = ? AND (c.user_id IS NULL OR c.user_id = ?)
+         GROUP BY c.id'
+    );
+    $query->execute([$courseId, $userId]);
+    $course = $query->fetch();
+    if (!$course) {
+        respond(404, ['error' => 'Course not found.']);
+    }
+    $instructions .= "\n\nThe question is about the course {$course['code']}: {$course['name']}."
+        . "\nCourse topics: " . ($course['topics'] ?: 'not listed')
+        . "\nStudent's notes: " . ($course['notes'] ?: 'none');
+}
+
+$ch = curl_init(config('OPENAI_BASE_URL', 'https://api.openai.com/v1') . '/responses');
 curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_RETURNTRANSFER => true,
@@ -40,8 +53,8 @@ curl_setopt_array($ch, [
         'Authorization: Bearer ' . $apiKey,
     ],
     CURLOPT_POSTFIELDS => json_encode([
-        'model' => getenv('OPENAI_MODEL') ?: 'gpt-5',
-        'instructions' => 'You are Podfessor. Write a short, friendly podcast script that teaches the student about the topic they ask about.',
+        'model' => config('OPENAI_MODEL', 'gpt-5'),
+        'instructions' => $instructions,
         'input' => $prompt,
     ]),
 ]);
