@@ -275,3 +275,56 @@ textarea {
         margin: 10px 0;
     }
 }
+
+.episode {
+    border-top: 1px solid #333;
+    padding: 10px 0;
+}
+
+.episode h6 {
+    color: white;
+    font-size: 14px;
+    margin: 0;
+}
+
+.episode-meta {
+    color: grey;
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.episode audio {
+    width: 100%;
+    margin: 6px 0;
+}
+
+.episode summary {
+    cursor: pointer;
+    color: greenyellow;
+    font-size: 12px;
+}
+
+#chat-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+#chat-form #chatCourse {
+    flex-basis: 100%;
+    margin-bottom: 0;
+}
+
+#chat-form #chatInput {
+    flex: 1;
+    min-width: 0;
+}
+
+#chat-form .search-button {
+    flex-shrink: 0;
+}
+
+.episode .link-button {
+    padding-left: 0;
+}

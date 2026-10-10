@@ -17,6 +17,8 @@ export DB_USER="${TEST_DB_USER:-root}"
 export DB_PASS="${TEST_DB_PASS:-}"
 export OPENAI_API_KEY="test-key"
 export OPENAI_BASE_URL="http://127.0.0.1:8091"
+export DAILY_EPISODE_LIMIT=3
+export AUDIO_DIR="$(mktemp -d)"
 export MOCK_LOG="$(mktemp)"
 export API_URL="http://127.0.0.1:8090/api"
 
@@ -32,7 +34,7 @@ php -S 127.0.0.1:8091 tests/mock_openai.php > /dev/null 2>&1 &
 mock_pid=$!
 php -S 127.0.0.1:8090 router.php > /dev/null 2>&1 &
 server_pid=$!
-trap 'kill $mock_pid $server_pid 2>/dev/null; rm -f "$MOCK_LOG"' EXIT
+trap 'kill $mock_pid $server_pid 2>/dev/null; rm -rf "$MOCK_LOG" "$AUDIO_DIR"' EXIT
 
 # Wait for the server to start
 for _ in $(seq 1 30); do

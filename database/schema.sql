@@ -1,6 +1,7 @@
 -- Podfessor database schema (MySQL 8 / MariaDB 10.6+)
 -- Run with: mysql -u <user> -p <database> < database/schema.sql
 
+DROP TABLE IF EXISTS episodes;
 DROP TABLE IF EXISTS course_topics;
 DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS semesters;
@@ -45,4 +46,21 @@ CREATE TABLE course_topics (
     position  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     CONSTRAINT fk_topics_course FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE CASCADE,
     INDEX idx_topics_course (course_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- A generated podcast script. The audio is made the first time someone presses Listen,
+-- then reused, so the same script is never paid for twice.
+CREATE TABLE episodes (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    course_id  INT UNSIGNED NULL,
+    prompt     VARCHAR(500) NOT NULL,
+    script     TEXT NOT NULL,
+    audio_file VARCHAR(100) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Deleted episodes are hidden but kept, so they still count toward the daily limit.
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT fk_episodes_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_episodes_course FOREIGN KEY (course_id) REFERENCES courses (id) ON DELETE SET NULL,
+    INDEX idx_episodes_user_created (user_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

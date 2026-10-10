@@ -140,3 +140,35 @@ function public_user(array $row): array
 {
     return ['id' => (int) $row['id'], 'name' => $row['name'], 'email' => $row['email']];
 }
+
+/**
+ * POST JSON to the OpenAI API. Returns the raw response body, or responds 502 if the call fails.
+ * The full error is logged on the server and never sent to the browser.
+ */
+function openai_post(string $path, array $payload, int $timeout = 60): string
+{
+    $apiKey = config('OPENAI_API_KEY');
+    if (!$apiKey) {
+        respond(500, ['error' => 'The server is missing OPENAI_API_KEY.']);
+    }
+
+    $ch = curl_init(config('OPENAI_BASE_URL', 'https://api.openai.com/v1') . $path);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+    ]);
+    $raw = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if ($raw === false || $status !== 200) {
+        error_log("OpenAI $path failed with status $status: " . ($raw === false ? curl_error($ch) : substr($raw, 0, 1000)));
+        respond(502, ['error' => 'The AI service is unavailable right now. Please try again.']);
+    }
+    return $raw;
+}

@@ -1,16 +1,12 @@
 <?php
-// POST { prompt, course_id? } -> a podcast script from the OpenAI Responses API.
+// POST { prompt, course_id? } -> writes a podcast script with the OpenAI Responses API and saves it as an episode.
 // The API key stays on the server. Login is required so the key can't be used by anyone on the internet.
 
 require __DIR__ . '/_bootstrap.php';
+require __DIR__ . '/_episodes.php';
 
 require_method('POST');
 $userId = require_login();
-
-$apiKey = config('OPENAI_API_KEY');
-if (!$apiKey) {
-    respond(500, ['error' => 'The server is missing OPENAI_API_KEY.']);
-}
 
 $data = read_json();
 $prompt = string_field($data, 'prompt');
@@ -22,10 +18,21 @@ if (mb_strlen($prompt) > 500) {
     respond(400, ['error' => 'Please keep your question under 500 characters.']);
 }
 
-$instructions = 'You are Podfessor. Write a short, friendly podcast script that teaches the student about the topic they ask about.';
+// Cap how many scripts one account can generate per day, to keep API costs predictable.
+$dailyLimit = (int) config('DAILY_EPISODE_LIMIT', '30');
+$recent = db()->prepare('SELECT COUNT(*) FROM episodes WHERE user_id = ? AND created_at > NOW() - INTERVAL 1 DAY');
+$recent->execute([$userId]);
+if ((int) $recent->fetchColumn() >= $dailyLimit) {
+    respond(429, ['error' => "You've reached today's limit of $dailyLimit episodes. Please try again tomorrow."]);
+}
+
+$instructions = 'You are Podfessor, a friendly podcast host who teaches university students. '
+    . 'Write a podcast script, under 400 words, that teaches the topic the student asks about. '
+    . 'It will be read aloud by a single narrator, so write plain spoken sentences only: '
+    . 'no headings, bullet points, markdown, stage directions or speaker names.';
 
 // If a course was chosen, give the model its topics and the student's notes as background.
-$courseId = filter_var($data['course_id'] ?? null, FILTER_VALIDATE_INT);
+$courseId = filter_var($data['course_id'] ?? null, FILTER_VALIDATE_INT) ?: null;
 if ($courseId) {
     $query = db()->prepare(
         'SELECT c.code, c.name, c.notes, GROUP_CONCAT(t.name ORDER BY t.position SEPARATOR \', \') AS topics
@@ -43,29 +50,11 @@ if ($courseId) {
         . "\nStudent's notes: " . ($course['notes'] ?: 'none');
 }
 
-$ch = curl_init(config('OPENAI_BASE_URL', 'https://api.openai.com/v1') . '/responses');
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 60,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $apiKey,
-    ],
-    CURLOPT_POSTFIELDS => json_encode([
-        'model' => config('OPENAI_MODEL', 'gpt-5'),
-        'instructions' => $instructions,
-        'input' => $prompt,
-    ]),
+$raw = openai_post('/responses', [
+    'model' => config('OPENAI_MODEL', 'gpt-5'),
+    'instructions' => $instructions,
+    'input' => $prompt,
 ]);
-
-$raw = curl_exec($ch);
-$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-if ($raw === false || $status !== 200) {
-    error_log("OpenAI request failed with status $status: $raw");
-    respond(502, ['error' => 'The AI service is unavailable right now. Please try again.']);
-}
 
 // Collect the text parts of the model's message output.
 $text = '';
@@ -79,5 +68,15 @@ foreach (json_decode($raw, true)['output'] ?? [] as $item) {
         }
     }
 }
+$text = trim($text);
 
-respond(200, ['text' => $text]);
+if ($text === '') {
+    error_log('OpenAI returned no text: ' . substr($raw, 0, 1000));
+    respond(502, ['error' => 'The AI service returned an empty answer. Please try again.']);
+}
+
+$insert = db()->prepare('INSERT INTO episodes (user_id, course_id, prompt, script) VALUES (?, ?, ?, ?)');
+$insert->execute([$userId, $courseId, $prompt, $text]);
+
+$episode = format_episode(find_own_episode((int) db()->lastInsertId(), $userId));
+respond(200, ['text' => $text, 'episode' => $episode]);

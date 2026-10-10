@@ -10,3 +10,6 @@ Thumbs.db
 # Dependencies
 node_modules/
 vendor/
+
+# Generated audio
+storage/

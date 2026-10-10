@@ -41,6 +41,35 @@ final class Client
         $raw = curl_exec($ch);
         return [curl_getinfo($ch, CURLINFO_HTTP_CODE), json_decode((string) $raw, true)];
     }
+
+    /** GET a file such as audio. @return array{0:int,1:string,2:array<string,string>} status, raw body, lower-cased headers */
+    public function download(string $path, array $requestHeaders = []): array
+    {
+        $responseHeaders = [];
+        $ch = curl_init($this->baseUrl . '/' . $path);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_COOKIEJAR => $this->cookieFile,
+            CURLOPT_COOKIEFILE => $this->cookieFile,
+            CURLOPT_HTTPHEADER => $requestHeaders,
+            CURLOPT_HEADERFUNCTION => function ($ch, string $line) use (&$responseHeaders): int {
+                if (str_contains($line, ':')) {
+                    [$name, $value] = explode(':', $line, 2);
+                    $responseHeaders[strtolower(trim($name))] = trim($value);
+                }
+                return strlen($line);
+            },
+        ]);
+        $raw = (string) curl_exec($ch);
+        return [curl_getinfo($ch, CURLINFO_HTTP_CODE), $raw, $responseHeaders];
+    }
+}
+
+/** Every request the fake OpenAI server received, oldest first. */
+function mock_requests(): array
+{
+    $lines = file(getenv('MOCK_LOG') ?: '', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+    return array_map(fn ($line) => json_decode($line, true), $lines);
 }
 
 function check(string $name, bool $ok, mixed $detail = null): void
@@ -169,17 +198,96 @@ check('empty question returns 400', $status === 400, $body);
 
 [$status, $body] = $alice->request('POST', 'chat.php', ['prompt' => 'Explain joins', 'course_id' => $aliceCourseId]);
 check('chat returns the model text', $status === 200 && $body['text'] === 'Mock podcast script.', $body);
+$episode = $body['episode'] ?? [];
+check('chat saves the script as an episode', ($episode['script'] ?? '') === 'Mock podcast script.'
+    && $episode['prompt'] === 'Explain joins' && $episode['course_code'] === 'DBS311' && $episode['audio_url'] === null, $episode);
 
-$sent = json_decode((string) @file_get_contents(getenv('MOCK_LOG') ?: ''), true);
+$sent = mock_requests()[0]['body'] ?? [];
 check('chat sends the course notes to the model', str_contains($sent['instructions'] ?? '', 'Normalization and indexes.'), $sent);
 
 [$status] = $bob->request('POST', 'chat.php', ['prompt' => 'Explain joins', 'course_id' => $aliceCourseId]);
 check('chat cannot read another user\'s course', $status === 404);
 
+echo "Episodes and audio\n";
+[$status] = $guest->request('GET', 'episodes.php');
+check('guest cannot list episodes', $status === 401);
+
+[$status, $body] = $alice->request('GET', 'episodes.php');
+check('alice lists her episodes', $status === 200 && array_column($body['episodes'], 'id') === [$episode['id']], $body);
+
+[, $body] = $bob->request('GET', 'episodes.php');
+check('bob does not see alice\'s episodes', $body['episodes'] === [], $body);
+
+[$status] = $alice->request('GET', "audio.php?episode_id={$episode['id']}");
+check('audio is 404 before it is generated', $status === 404);
+
+[$status] = $bob->request('POST', 'speech.php', ['episode_id' => $episode['id']]);
+check('bob cannot generate audio for alice\'s episode', $status === 404);
+
+$requestsBefore = count(mock_requests());
+[$status, $body] = $alice->request('POST', 'speech.php', ['episode_id' => $episode['id']]);
+$audioUrl = $body['episode']['audio_url'] ?? '';
+check('speech returns an audio link', $status === 200 && $audioUrl === "api/audio.php?episode_id={$episode['id']}", $body);
+
+$speechRequest = mock_requests()[$requestsBefore] ?? [];
+check('speech sends the script to the TTS endpoint', ($speechRequest['path'] ?? '') === '/audio/speech'
+    && $speechRequest['body']['input'] === 'Mock podcast script.' && $speechRequest['body']['response_format'] === 'mp3', $speechRequest);
+
+[$status] = $alice->request('POST', 'speech.php', ['episode_id' => $episode['id']]);
+check('pressing Listen again reuses the saved audio', $status === 200 && count(mock_requests()) === $requestsBefore + 1);
+
+[$status, $audio, $headers] = $alice->download(substr($audioUrl, 4));
+check('audio streams to its owner as MP3', $status === 200 && $audio === 'MP3[20]'
+    && $headers['content-type'] === 'audio/mpeg' && $headers['accept-ranges'] === 'bytes', [$status, $audio, $headers]);
+
+[$status, $audio, $headers] = $alice->download(substr($audioUrl, 4), ['Range: bytes=2-4']);
+check('audio supports range requests for seeking', $status === 206 && $audio === '3[2' && $headers['content-range'] === 'bytes 2-4/7', [$status, $audio, $headers]);
+
+[$status, $audio] = $alice->download(substr($audioUrl, 4), ['Range: bytes=-3']);
+check('audio supports suffix ranges', $status === 206 && $audio === '20]', [$status, $audio]);
+
+[$status] = $alice->download(substr($audioUrl, 4), ['Range: bytes=50-']);
+check('out-of-range request returns 416', $status === 416);
+
+[$status] = $bob->download(substr($audioUrl, 4));
+check('bob cannot download alice\'s audio', $status === 404);
+
+$requestsBefore = count(mock_requests());
+[, $body] = $alice->request('POST', 'chat.php', ['prompt' => 'LONG lesson please']);
+$longEpisode = $body['episode'] ?? [];
+[$status, $body] = $alice->request('POST', 'speech.php', ['episode_id' => $longEpisode['id'] ?? 0]);
+$speechParts = array_values(array_filter(array_slice(mock_requests(), $requestsBefore), fn ($r) => $r['path'] === '/audio/speech'));
+check('long scripts are recorded in parts under the 4,096 character limit', $status === 200 && count($speechParts) === 3
+    && max(array_map(fn ($r) => mb_strlen($r['body']['input']), $speechParts)) <= 4096, count($speechParts));
+
+[, $audio] = $alice->download("audio.php?episode_id={$longEpisode['id']}");
+check('the parts are joined into one file', $audio === implode('', array_map(fn ($r) => 'MP3[' . mb_strlen($r['body']['input']) . ']', $speechParts)), $audio);
+
+[$status] = $bob->request('DELETE', "episodes.php?id={$longEpisode['id']}");
+check('bob cannot delete alice\'s episode', $status === 404);
+
+$audioFiles = glob(getenv('AUDIO_DIR') . '/*.mp3');
+[$status] = $alice->request('DELETE', "episodes.php?id={$longEpisode['id']}");
+[, $body] = $alice->request('GET', 'episodes.php');
+check('alice deletes an episode', $status === 204 && array_column($body['episodes'], 'id') === [$episode['id']], $body);
+check('deleting an episode removes its audio file', count(glob(getenv('AUDIO_DIR') . '/*.mp3')) === count($audioFiles) - 1);
+
 echo "Deleting\n";
 [$status] = $alice->request('DELETE', "courses.php?id=$aliceCourseId");
 [$afterStatus] = $alice->request('GET', "courses.php?id=$aliceCourseId");
 check('alice deletes her course', $status === 204 && $afterStatus === 404);
+
+[, $body] = $alice->request('GET', 'episodes.php');
+check('episodes survive when their course is deleted', array_column($body['episodes'], 'id') === [$episode['id']]
+    && $body['episodes'][0]['course_code'] === null, $body);
+
+echo "Daily limit (set to 3 for the tests)\n";
+[$status] = $alice->request('POST', 'chat.php', ['prompt' => 'Third question']);
+check('third episode of the day is allowed', $status === 200);
+[$status, $body] = $alice->request('POST', 'chat.php', ['prompt' => 'Fourth question']);
+check('fourth returns 429, because deleted episodes still count', $status === 429, $body);
+[$status] = $bob->request('POST', 'chat.php', ['prompt' => 'Bob\'s first question']);
+check('the limit is per user', $status === 200);
 
 echo "\n$passed passed, $failed failed\n";
 exit($failed === 0 ? 0 : 1);

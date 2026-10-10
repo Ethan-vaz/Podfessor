@@ -34,17 +34,19 @@
     <h2>AI-powered Text-to-Speech Course Summaries </h2>
     <main>
     <!-- OPEN AI CHAT SECTION -->
-    <div id="chat" class="section" style="width: 20%;">
+    <div id="chat" class="section" style="width: 30%;">
         <h5>Ask Podfessor</h5>
 
         <form id="chat-form">
             <select id="chatCourse" aria-label="Course to ask about">
                 <option value="">Any course</option>
             </select>
-            <input id="chatInput" style="width: 120px;" type="text" name="chatInput" maxlength="500" placeholder="Ask me about your course!" aria-label="Ask a question about your course"/>
+            <input id="chatInput" type="text" name="chatInput" maxlength="500" placeholder="Ask me about your course!" aria-label="Ask a question about your course"/>
             <button type="submit" class="search-button" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
-        <div id="chatResponses" aria-live="polite"></div>
+        <p id="chatStatus" aria-live="polite"></p>
+        <h5>Your Episodes</h5>
+        <div id="episodeList"></div>
 
     </div>
 
@@ -55,7 +57,7 @@
     <!-- <button id="generateButton">GENERATE COURSE CARDS <i class="fa-solid fa-book-open"></i></button> -->
 
     <!-- CARDS SECTION -->
-    <div class="section" style="width: 80%;">
+    <div class="section" style="width: 70%;">
     <div id="semesterContainer"></div>
     <div id="cardsContainer"></div>
     </div>
